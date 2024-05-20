@@ -1,0 +1,79 @@
+html {
+    font-size: 14px;
+}
+
+body {
+    background: rgb(40,40,40);
+    background: linear-gradient(11deg, rgba(40,40,40,1) 19%, rgba(0,0,0,1) 37%, rgba(5,5,5,1) 56%, rgba(52,52,52,1) 85%);
+    color: thistle
+}
+th {
+    font-weight: bold;
+    color: deeppink;
+}
+a{
+    color: blueviolet;
+    text-decoration: none;
+}
+tr{
+    color: white;
+}
+
+    @media (min-width: 768px) {
+        html {
+            font-size: 16px;
+        }
+    }
+
+    .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* Custom button color */
+.btn-violet {
+    background-color: #8a2be2; /* Adjust the color code as needed */
+    border-color: #8a2be2;
+    color: #fff;
+}
+
+.btn-violet:hover {
+        background-color: #7b68ee; /* Adjust the hover color if needed */
+        border-color: #7b68ee;
+ }
+
+/* Optional: Increase button size */
+.btn-lg {
+    padding: 10px 20px;
+    font-size: 18px;
+}
+
+/* Box shadow for the card */
+.card {
+    box-shadow: 0 0.5rem 1rem white; /* Adjust the shadow values as needed */
+    border: solid 1px white;
+}
+.opis {
+    box-shadow: 2rem 0.5rem 1rem rgba(0, 0, 0, 0.7); /* Adjust the shadow values as needed */
+    border: solid 1px white;
+    border-radius: 20px;
+}
+.carousel-item img {
+    height: 400px; /* Set a constant height for the images */
+    width: 100%; /* Stretch the images to fill the entire width of the page */
+    object-fit: cover; /* Maintain aspect ratio while filling the available space */
+}
+.text-container {
+    background-color: rgba(0, 0, 0, 0.5); /* Kolor t³a z przezroczystoœci¹ */
+    padding: 20px; /* Dodajemy odstêp wokó³ tekstu */
+    border-radius: 10px; /* Zaokr¹glone rogi dla efektu estetycznego */
+    color: white; /* Kolor tekstu */
+}

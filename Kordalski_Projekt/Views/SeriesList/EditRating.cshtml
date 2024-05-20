@@ -1,0 +1,117 @@
+﻿@model Kordalski_Projekt.Models.Ratings
+
+@{
+    ViewData["Title"] = "Edit Rating";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>Ratings</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditRating">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <select hidden asp-for="User_Id" class="form-control" asp-items="ViewBag.User_Id"></select>
+            <select hidden asp-for="Series_Id" class="form-control" asp-items="ViewBag.Series_Id"></select>
+
+            <div class="form-group">
+                <label class="control-label">Rate</label>
+                <div id="star-rating" class="star-rating">
+                    @for (int i = 1; i <= 10; i++)
+                    {
+                        if (i <= Model.Rate) // Zaznacza gwiazdkę tylko jeśli jej wartość jest mniejsza lub równa ocenie
+                        {
+                            <i class="fas fa-star text-warning star" data-value="@i"></i>
+                        }
+                        else if (i - 0.5 == Model.Rate) // Zaznacza połówkę gwiazdki, jeśli jest to odpowiednia ocena
+                        {
+                            <i class="fas fa-star-half-alt text-warning star" data-value="@i"></i>
+                        }
+                        else // Pozostawia gwiazdkę pustą, jeśli nie pasuje do oceny
+                        {
+                            <i class="far fa-star text-warning star" data-value="@i"></i>
+                        }
+                    }
+                </div>
+                <input type="hidden" id="Rate" name="Rate" class="form-control" value="@Model.Rate" /> <!-- Ustawia wartość początkową na ocenę z modelu -->
+                <span asp-validation-for="Rate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input required asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.star').on('click', function () {
+            var value = $(this).data('value');
+            $('#Rate').val(value);
+
+            $('.star').each(function () {
+                var starValue = $(this).data('value');
+                if (starValue <= value) {
+                    $(this).removeClass('far fa-star').addClass('fas fa-star');
+                } else if (starValue === value + 0.5) {
+                    $(this).removeClass('fas fa-star').addClass('fas fa-star-half-alt');
+                } else {
+                    $(this).removeClass('fas fa-star fas fa-star-half-alt').addClass('far fa-star');
+                }
+            });
+        });
+
+        $('.star').hover(function () {
+            var value = $(this).data('value');
+            $('.star').each(function () {
+                var starValue = $(this).data('value');
+                if (starValue <= value) {
+                    $(this).removeClass('far fa-star').addClass('fas fa-star');
+                } else if (starValue === value + 0.5) {
+                    $(this).removeClass('fas fa-star').addClass('fas fa-star-half-alt');
+                } else {
+                    $(this).removeClass('fas fa-star fas fa-star-half-alt').addClass('far fa-star');
+                }
+            });
+        }, function () {
+            var value = $('#Rate').val();
+            $('.star').each(function () {
+                var starValue = $(this).data('value');
+                if (starValue <= value) {
+                    $(this).removeClass('far fa-star').addClass('fas fa-star');
+                } else if (starValue === value + 0.5) {
+                    $(this).removeClass('fas fa-star').addClass('fas fa-star-half-alt');
+                } else {
+                    $(this).removeClass('fas fa-star fas fa-star-half-alt').addClass('far fa-star');
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .star {
+        cursor: pointer;
+        font-size: 1.5rem;
+        margin-right: 5px; /* Adjust this value to increase or decrease the spacing */
+    }
+
+    .star-rating {
+        display: flex;
+    }
+</style>

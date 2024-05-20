@@ -1,0 +1,179 @@
+﻿@model Kordalski_Projekt.Models.Series
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Microsoft.AspNetCore.Identity
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment _environment
+@inject Microsoft.AspNetCore.Identity.UserManager<IdentityUser> UserManager
+
+<br />
+<br />
+<div class="row">
+    <div class="col-md-6 d-flex justify-content-center">
+        <img src="@Model.Photo_src" alt="@Model.Title" class="img-fluid" style=" height: 500px;" />
+    </div>
+    <div class="col-md-6 d-flex justify-content-center flex-column opis">
+        <h1><b style="color: white">Tytuł: </b></h1>
+        <h1>@Model.Title</h1>
+        <br />
+        <h1><b style="color: white">Opis: </b></h1>
+        <p>@Model.Description</p>
+        <p><b style="color: white">Status:</b> @Model.Status</p>
+        <p><b style="color: white">First Air Date:</b> @Model.FirstAirDate.ToString("d")</p>
+        <br />
+        <hr />
+        <p>
+            <a asp-action="Index" class="btn btn-violet">Back to Series list </a>
+        </p>
+    </div>
+</div>
+<br />
+<div class="row justify-content-center">
+        <hr />
+        <h1>Episodes List</h1>
+         <br />
+        @if (Model.Episode != null && Model.Episode.Any())
+        {
+        int i = 1;
+        @foreach (var episode in Model.Episode)
+                {
+                    <div class="col-md-4 mb-4">
+                <div class="card bg-dark text-light shadow">
+                    <img src="@episode.Prev_src" class="card-img-top" alt="@episode.Name" style="object-fit: cover; height: 500px;">
+                    <div class="card-body d-flex justify-content-center">
+                                <h5 class="card-title">Episode @i: @episode.Name</h5>
+                       
+                            </div>
+                    <div class="card-footer bg-dark d-flex justify-content-center">
+                        <a href="@Url.Action("Watch", "Episode", new { id = episode.Id })" class="btn  btn-lg btn-violet">Watch</a>
+                            </div>
+                        </div>
+                    </div>
+                    i++;
+                }
+        }
+        else
+        {
+            <p>No episodes available for this series.</p>
+        }
+</div>
+<br />
+<!-- Lista ocen (ratings) dla danej serii -->
+<div class="row justify-content-center">
+    <hr />
+    <h1>Ratings List</h1>
+    <br />
+    <div class="col-4">
+        @if (User.Identity.IsAuthenticated)
+        {
+          
+            var currentUserId = UserManager.GetUserId(User);
+            var userRating = Model.Ratings.FirstOrDefault(r => r.User.Id == currentUserId);
+            if (userRating != null)
+            {
+                // Użytkownik już ocenił tę serię, więc wyświetl przycisk do edycji oceny
+                <form method="get" action="@Url.Action("EditRating", "SeriesList")">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="Id" value="@userRating.Id" />
+                    <button type="submit" class="btn btn-warning">Edit Rating</button>
+                </form>
+            }
+            else
+            {
+                // Użytkownik jeszcze nie ocenił tej serii, więc wyświetl przycisk do dodania oceny
+                <form method="get" action="@Url.Action("AddRating", "SeriesList")">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="seriesId" value="@Model.Id" />
+                    <button type="submit" class="btn btn-success">Add Rating</button>
+                </form>
+            }
+            <hr />
+        }
+    </div>
+    <div class="col-8">
+    </div>
+    @if (Model.Ratings != null && Model.Ratings.Any())
+    {
+
+        var currentUserId = UserManager.GetUserId(User);
+       
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <table class="table">
+                    <thead>
+                        <tr>
+
+                            <th colspan="2">User</th>
+                            <th>Rate</th>
+                            <th>Description</th>
+                            <th></th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var rating in Model.Ratings)
+                        {
+                            // Path to user's profile photo
+                            var photoFileName = $"{rating.User.Id}.png";
+                            var photoPath = _environment.WebRootPath + "/pfp/" + photoFileName;
+                            var photoSrc = System.IO.File.Exists(photoPath) ? $"/pfp/{photoFileName}" : "/pfp/default.png";
+
+                            <tr>
+                                <td><img src="@photoSrc" alt="Profile Photo" class="img-fluid" style="max-width: 50px; max-height: 50px; border-radius: 25px;" /></td>
+                                <td>@rating.User.UserName</td>
+
+                                <td>
+                                    @{
+                                        int fullStars = (int)(rating.Rate / 2); // Konwersja na int
+                                        bool halfStar = rating.Rate % 2 != 0; // Czy ocena zawiera pół gwiazdki
+                                    }
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        if (i < fullStars)
+                                        {
+                                            <i class="fas fa-star text-warning"></i> <!-- Wypełniona gwiazdka -->
+                                        }
+                                        else if (halfStar && i == fullStars)
+                                        {
+                                            <i class="fas fa-star-half-alt text-warning"></i> <!-- Pół gwiazdki -->
+                                        }
+                                        else
+                                        {
+                                            <i class="far fa-star text-warning"></i> <!-- Pusta gwiazdka -->
+                                        }
+                                    }
+                                </td>
+
+                                <td>@rating.Description</td>
+                                <td>
+                                @if (User.Identity.IsAuthenticated && rating.User.Id == currentUserId)
+                                    {
+                                        <form id="deleteForm-@rating.Id" method="post" action="@Url.Action("DeleteRating", "SeriesList")">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="Id" value="@rating.Id" />
+                                            <button style="background-color: darkred" type="button" class="btn-danger btn" onclick="confirmDelete('@rating.Id')">Delete</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>No ratings available for this series.</p>
+    }
+    <script>
+        function confirmDelete(ratingId) {
+            if (confirm("Czy na pewno chcesz usunąć tę ocenę?")) {
+                var form = document.getElementById("deleteForm-" + ratingId);
+                form.submit();
+            }
+        }
+    </script>
+</div>

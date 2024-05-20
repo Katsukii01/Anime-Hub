@@ -1,0 +1,307 @@
+﻿@model Kordalski_Projekt.Models.Episode
+
+@{
+    ViewData["Title"] = "Watch Episode";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Microsoft.AspNetCore.Identity
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment _environment
+@inject Microsoft.AspNetCore.Identity.UserManager<IdentityUser> UserManager
+
+<div class="container">
+    <br />
+    <h1 class="text-center opis">@Model.Name</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-8 ">
+          
+            <div class="row justify-content-center">
+               <div class="col-md-3">
+                    @{
+                        var previousEpisode = ViewData["PreviousEpisode"] as Kordalski_Projekt.Models.Episode;
+                    }
+                    <a href="@Url.Action("Watch", "Episode", new { id = previousEpisode?.Id ?? Model.Id })" class="btn btn-violet @(previousEpisode == null ? "disabled" : "")">Previous Episode</a>
+                </div>
+                <div class="col-md-3">
+                    <a href="@Url.Action("Details", "SeriesList", new { id = Model.Series_Id })" class="btn btn-violet">Back to Series Details</a> <!-- Przycisk powrotu do szczegółów serii -->
+                </div>
+                <div class="col-md-3">
+                    @{
+                        var nextEpisode = ViewData["NextEpisode"] as Kordalski_Projekt.Models.Episode;
+                    }
+                    <a href="@Url.Action("Watch", "Episode", new { id = nextEpisode?.Id ?? Model.Id })" class="btn btn-violet @(nextEpisode == null ? "disabled" : "")">Next Episode</a>
+                </div>
+            </div>
+            <hr />
+            <br/>
+            <!-- Video Player -->
+            <iframe src="@Model.Link" style="width: 100%; height: 480px;" frameborder="0" allowfullscreen>
+                Your browser does not support the iframe tag.
+            </iframe>
+
+
+            @{
+                var userLikeStatus = ViewData["UserLikeStatus"] as Kordalski_Projekt.Models.Likes;
+                var likeButtonClass = userLikeStatus != null && userLikeStatus.IsLiked ? "btn-success" : "btn-secondary";
+                var dislikeButtonClass = userLikeStatus != null && userLikeStatus.IsLiked == false ? "btn-danger" : "btn-secondary";
+                var likesCount = ViewData["LikesCount"] ?? 0;
+                var dislikesCount = ViewData["DislikesCount"] ?? 0;
+            }
+
+            <!-- Likes -->
+              
+            <div class="mt-3">
+                @if (User.Identity.IsAuthenticated)
+                {
+                <button class="btn @likeButtonClass" id="likeButton">
+                    <i class="fas fa-thumbs-up"></i> <span id="likesCount">@likesCount</span>
+                </button>
+                <button class="btn @dislikeButtonClass" id="dislikeButton">
+                    <i class="fas fa-thumbs-down"></i> <span id="dislikesCount">@dislikesCount</span>
+                </button>
+                }else{
+                    <button class="btn btn-secondary" disabled>
+                        <i class="fas fa-thumbs-up"></i> <span id="likesCount">@likesCount</span>
+                    </button>
+                    <button class="btn btn-secondary" disabled>
+                        <i class="fas fa-thumbs-down"></i> <span id="dislikesCount">@dislikesCount</span>
+                    </button>
+                  
+                }
+            </div>
+
+            <hr />
+
+
+            <!-- Comments -->
+            @{
+                var comments = ViewData["Comments"] as IEnumerable<Kordalski_Projekt.Models.Comments>;
+                var currentPage = (int)ViewData["CurrentPage"];
+                var totalPages = (int)ViewData["TotalPages"];
+                var currentUserId = UserManager.GetUserId(User);
+            }
+            <div class="mt-4">
+                <h3>Comments</h3>
+                   @if (User.Identity.IsAuthenticated){
+                        <form id="commentForm">
+                            <input type="hidden" name="episodeId" value="@Model.Id" />
+                            <input type="hidden" name="userId" value="@currentUserId" />
+                            <textarea required class="form-control mb-2" id="commentText" rows="3" placeholder="Add a comment"></textarea>
+                            <button type="submit" class="btn btn-violet">Post Comment</button>
+                        </form>
+                   }
+                <br />
+
+                
+
+                @if (comments.Any())
+                {
+                    <div id="commentsSection">
+                    @foreach (var comment in comments)
+                    {
+                           
+                        var photoFileName = $"{@comment.User.Id}.png";
+                        var photoPath = _environment.WebRootPath + "/pfp/" + photoFileName;
+                        var photoSrc = System.IO.File.Exists(photoPath) ? $"~/pfp/{photoFileName}" : "~/pfp/default.png";
+                            
+                        <div class="row d-flex justify-content-center">
+
+                            <div class="col-md-12 col-lg-10 col-xl-8">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex flex-start align-items-center">
+                                            <img src="@Url.Content(photoSrc)" class="mr-3" alt="User Photo" style="width: 64px; height: 64px; border-radius:32px;">
+                                            <div>
+                                                <h6 class="fw-bold text-primary mb-1">@comment.User.UserName</h6>
+                                                <p class="text-muted small mb-0">
+                                                    Shared publicly - @comment.Time.ToString("g")
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <p class="mt-3 mb-4 pb-2">
+                                            @comment.Content
+                                            
+                                        </p>
+                                        @if (User.Identity.IsAuthenticated && @comment.User.Id == currentUserId)
+                                        {
+                                            <form id="deleteForm-@comment.Id" method="post" action="@Url.Action("DeleteComment", "Episode")">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="commentId" value="@comment.Id" />
+                                                <input type="hidden" name="userId" value="@comment.User.Id" />
+                                                <button style="background-color: darkred" type="button" class="btn-danger btn" onclick="confirmDelete('@comment.Id', '@comment.User.Id')">Delete</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                    }
+
+                        <!-- Pagination -->
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link" href="@Url.Action("Watch", new { id = Model.Id, page = currentPage - 1 })">Previous</a>
+                                </li>
+                                @for (var i = 1; i <= totalPages; i++)
+                                {
+                                    <li class="page-item @(currentPage == i ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Watch", new { id = Model.Id, page = i })">@i</a>
+                                    </li>
+                                }
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link" href="@Url.Action("Watch", new { id = Model.Id, page = currentPage + 1 })">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                   </div>
+                }
+                 else
+                {
+                    <div id="commentsSection">
+                      <p>No comments yet.</p>
+                      </div>
+                    }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    function confirmDelete(commentId, userId) {
+        if (confirm("Czy na pewno chcesz usunąć?")) {
+            var form = $('#deleteForm-' + commentId);
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    // Handle the response on successful deletion
+                    // For example, remove the comment from the page
+                    $('#deleteForm-' + commentId).closest('.comment').remove();
+
+                        // Clear the comment text area
+                        $('#commentText').val('');
+
+                        // Refresh comments
+                        refreshComments();
+                },
+                error: function(xhr, status, error) {
+                    // Handle the error
+                    alert('Wystąpił błąd podczas usuwania komentarza: ' + error);
+                }
+            });
+        }
+        }
+
+        $(document).ready(function () {
+            $('#commentForm').submit(function (event) {
+                // Prevent the default form submission
+                event.preventDefault();
+
+                // Get the comment text, episode ID, and user ID
+                var commentText = $('#commentText').val();
+                var episodeId = $('[name="episodeId"]').val();
+                var userId = $('[name="userId"]').val();
+
+                // Add anti-forgery token
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                // Send the AJAX request to add the comment
+                $.ajax({
+                    url: '@Url.Action("AddComment", "Episode")',
+                    type: 'POST',
+                    data: {
+                        commentText: commentText,
+                        episodeId: episodeId,
+                        userId: userId,
+                        __RequestVerificationToken: token // Include the anti-forgery token
+                    },
+                    success: function (response) {
+                        // Handle the response
+                        console.log('Comment added successfully:', response);
+
+                        // Clear the comment text area
+                        $('#commentText').val('');
+
+                        // Refresh comments
+                        refreshComments();
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle the error
+                        console.error('Error adding comment:', error);
+                        alert('An error occurred while adding the comment: ' + error);
+                    }
+                });
+            });
+
+            $('#likeButton').click(function () {
+                updateLikeDislike(true);
+            });
+
+            $('#dislikeButton').click(function () {
+                updateLikeDislike(false);
+            });
+
+            function updateLikeDislike(isLiked) {
+                var episodeId = $('[name="episodeId"]').val();
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '@Url.Action("UpdateLikeDislike", "Episode")',
+                    type: 'POST',
+                    data: {
+                        episodeId: episodeId,
+                        isLiked: isLiked,
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        $('#likesCount').text(response.likesCount);
+                        $('#dislikesCount').text(response.dislikesCount);
+                        if (response.status == null || response.status == "zmiana") {
+                            if (response.userLikeStatus) {
+                                $('#likeButton').addClass('btn-success').removeClass('btn-secondary');
+                                $('#dislikeButton').addClass('btn-secondary').removeClass('btn-danger');
+                            } else {
+                                $('#likeButton').addClass('btn-secondary').removeClass('btn-success');
+                                $('#dislikeButton').addClass('btn-danger').removeClass('btn-secondary');
+                            }
+                        } else {
+                            $('#likeButton').removeClass('btn-success').addClass('btn-secondary');
+                            $('#dislikeButton').removeClass('btn-danger').addClass('btn-secondary');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error updating like/dislike:', error);
+                        alert('An error occurred while updating like/dislike: ' + error);
+                    }
+                });
+            }
+
+
+        });
+
+        // Function to refresh comments
+        function refreshComments() {
+            // Get episode ID
+            var episodeId = $('[name="episodeId"]').val();
+
+            // Send AJAX request to retrieve updated comments
+            $.ajax({
+                url: '@Url.Action("Watch", "Episode")',
+                type: 'GET',
+                data: { id: episodeId }, // Pass episode ID to retrieve comments for that episode
+                success: function (response) {
+                    // Update comments section with the new comments
+                    $('#commentsSection').html($(response).find('#commentsSection').html());
+                },
+                error: function (xhr, status, error) {
+                    // Handle the error
+                    console.error('Error refreshing comments:', error);
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Kordalski_Projekt.Models.Series>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br/>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 bg-dark text-light shadow">
+                <img src="@item.Photo_src" class="card-img-top" alt="@item.Title" style="object-fit: cover; height: 450px;">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h5>
+                    <p class="card-text">@Html.DisplayFor(modelItem => item.Description)</p>
+                    <p class="card-text"><small class="text-muted">Status: @Html.DisplayFor(modelItem => item.Status)</small></p>
+                    <p class="card-text"><small class="text-muted">First Air Date: @Html.DisplayFor(modelItem => item.FirstAirDate)</small></p>
+                </div>
+                <div class="card-footer bg-dark d-flex justify-content-center">
+                    <a class="btn-violet btn btn-lg" asp-action="Details" asp-route-id="@item.Id">Go to Episodes List</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

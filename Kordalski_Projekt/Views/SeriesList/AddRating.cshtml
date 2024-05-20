@@ -1,0 +1,95 @@
+﻿@model Kordalski_Projekt.Models.Ratings
+
+@using Microsoft.AspNetCore.Identity
+@inject Microsoft.AspNetCore.Identity.UserManager<IdentityUser> UserManager
+
+@{
+    ViewData["Title"] = "Add Rating";
+    var seriesId = ViewData["seriesId"];
+    var currentUserId = UserManager.GetUserId(User);
+}
+
+<h1>Add Rating</h1>
+
+<form id="addRatingForm" asp-action="AddRating">
+    <input type="hidden" asp-for="User_Id" value="@currentUserId" />
+    <input type="hidden" asp-for="Series_Id" value="@seriesId" />
+
+    <div class="form-group">
+        <label class="control-label">Rate</label>
+        <div id="star-rating" class="star-rating">
+            @for (int i = 1; i <= 10; i++)
+            {
+                <i class="far fa-star text-warning star" data-value="@i"></i>
+            }
+        </div>
+        <input type="hidden" id="Rate" name="Rate" class="form-control" value="0" />
+        <span asp-validation-for="Rate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <input required asp-for="Description" class="form-control" />
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.star').on('click', function () {
+            var value = $(this).data('value');
+            $('#Rate').val(value);
+
+            $('.star').each(function () {
+                var starValue = $(this).data('value');
+                if (starValue <= value) {
+                    $(this).removeClass('far fa-star').addClass('fas fa-star');
+                } else if (starValue === value + 0.5) {
+                    $(this).removeClass('fas fa-star').addClass('fas fa-star-half-alt');
+                } else {
+                    $(this).removeClass('fas fa-star fas fa-star-half-alt').addClass('far fa-star');
+                }
+            });
+        });
+
+        $('.star').hover(function () {
+            var value = $(this).data('value');
+            $('.star').each(function () {
+                var starValue = $(this).data('value');
+                if (starValue <= value) {
+                    $(this).removeClass('far fa-star').addClass('fas fa-star');
+                } else if (starValue === value + 0.5) {
+                    $(this).removeClass('fas fa-star').addClass('fas fa-star-half-alt');
+                } else {
+                    $(this).removeClass('fas fa-star fas fa-star-half-alt').addClass('far fa-star');
+                }
+            });
+        }, function () {
+            var value = $('#Rate').val();
+            $('.star').each(function () {
+                var starValue = $(this).data('value');
+                if (starValue <= value) {
+                    $(this).removeClass('far fa-star').addClass('fas fa-star');
+                } else if (starValue === value + 0.5) {
+                    $(this).removeClass('fas fa-star').addClass('fas fa-star-half-alt');
+                } else {
+                    $(this).removeClass('fas fa-star fas fa-star-half-alt').addClass('far fa-star');
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .star {
+        cursor: pointer;
+        font-size: 1.5rem;
+        margin-right: 5px; /* Adjust this value to increase or decrease the spacing */
+    }
+
+    .star-rating {
+        display: flex;
+    }
+</style>

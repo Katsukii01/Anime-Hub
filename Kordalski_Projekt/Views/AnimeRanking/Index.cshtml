@@ -1,0 +1,111 @@
+﻿@model List<Kordalski_Projekt.Models.Series>
+
+<h1>Anime Ranking</h1>
+
+<div>
+    <table class="table text-center align-items-center">
+        <thead>
+            <tr>
+                <th>Place</th>
+                <th colspan="2" >Series</th>
+                <th>Average Rating</th>
+                <th>Number of Ratings</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int j = 1;
+            }
+            @foreach (var series in ViewBag.Ranking)
+            {
+                var serie = Model.FirstOrDefault(s => s.Id == series.Key);
+                <tr>
+                    <td>
+                        @if (j == 1)
+                        {
+                            <div class="medal zloto">
+                                @j
+                            </div>
+                        }else if (j == 2)
+                        {
+                            <div class="medal serbro">
+                                @j
+                            </div>
+                        }else if (j == 3)
+                        {
+                            <div class="medal braz">
+                                @j
+                            </div>
+                        }
+                        else
+                        {
+                            @j
+                        }
+         
+                    </td>
+                    <td>
+                        <img src="@serie.Photo_src" alt="Photo" style="max-width: 200px; max-height: 200px;" />
+                      </td>
+                    <td>@serie.Title</td>
+                    <td>
+                        @{
+                            int fullStars = (int)(series.Value / 2); // Konwersja na int
+                            bool halfStar = series.Value % 2 != 0; // Czy ocena zawiera pół gwiazdki
+                        }
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            if (i < fullStars)
+                            {
+                                <i class="fas fa-star text-warning"></i> <!-- Wypełniona gwiazdka -->
+                            }
+                            else if (halfStar && i == fullStars)
+                            {
+                                <i class="fas fa-star-half-alt text-warning"></i> <!-- Pół gwiazdki -->
+                            }
+                            else
+                            {
+                                <i class="far fa-star text-warning"></i> <!-- Pusta gwiazdka -->
+                            }
+                        }
+                        <span>@(double.IsNaN((series.Value)) ? "No Ratings" : (series.Value/2).ToString("0.0"))</span> <!-- Rating podzielony przez 2 -->
+                    </td>
+                    <td>@ViewBag.RatingsCount[series.Key]</td>
+                </tr>   
+                j++;
+            }
+        </tbody>
+    </table>
+    <style>
+        .fa-star, .fa-star-half-alt {
+            font-size: 2rem;
+            margin-right: 2px; /* Adjust this value to increase or decrease the spacing */
+        }
+
+        .medal {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .zloto {
+            background-color: gold;
+            color: black;
+        }
+
+        .serbro {
+            background-color: silver;
+            color: black;
+        }
+
+        .braz {
+            background-color: #cd7f32; /* kolor brazu */
+            color: black;
+        }
+    </style>
+</div>
+

@@ -1,0 +1,60 @@
+﻿@model IEnumerable<Kordalski_Projekt.Models.WatchedList>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    int itemCount = Model.Count();
+    int watchtime = itemCount * 24;
+}
+<h1 class="text-center">Watch Time</h1>
+<h1 class="text-center opis" id="watchtime" style="color:deeppink">@watchtime minut</h1>
+
+<hr class="featurette-divider">
+<h1 class="text-center">Watched episodes</h1>
+
+<div class="row" id="watched-episodes">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-3 mb-4" id="watched-list-@item.Id">
+            <div class="card h-100 bg-dark text-light shadow">
+                <img src="@Html.DisplayFor(modelItem => item.Episode.Prev_src)" class="card-img-top" alt="Photo" style="object-fit: cover; height: 250px;" />
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayFor(modelItem => item.Episode.Name)</h5>
+                </div>
+                <div class="card-footer bg-dark d-flex justify-content-center">
+                    <button class="btn btn-danger" onclick="RemoveWatchedList('@item.Id')">Remove</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    var itemCount = @itemCount;
+    var watchtime = itemCount * 24;
+
+    function updateWatchTime() {
+        watchtime = itemCount * 24;
+        document.getElementById("watchtime").innerText = watchtime + " minut";
+    }
+
+    function RemoveWatchedList(watchedListId) {
+        $.ajax({
+            url: '@Url.Action("RemoveWatchedList", "WatchList")', // Adres URL akcji w kontrolerze
+            type: 'POST',
+            data: { watchedListId: watchedListId }, // Dane przekazywane w żądaniu
+            success: function (result) {
+                // Po pomyślnym usunięciu elementu WatchedList z listy, usuń odpowiedni element HTML
+                $('#watched-list-' + watchedListId).remove();
+                itemCount--; // Zmniejsz liczbę elementów
+                updateWatchTime(); // Zaktualizuj watchtime
+            },
+            error: function (xhr, status, error) {
+                // Obsłużanie błędu, jeśli wystąpi
+                console.error(error);
+            }
+        });
+    }
+</script>

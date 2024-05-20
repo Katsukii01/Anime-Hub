@@ -1,0 +1,130 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@model List<Kordalski_Projekt.Models.Series>
+<div class="text-center row">
+    <main>
+
+        <div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
+            <!-- Carousel Indicators -->
+            <div class="carousel-indicators">
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-label="Slide @(i + 1)" aria-current="@(i == 0 ? "true" : "")"></button>
+                }
+            </div>
+
+            <!-- Carousel Inner -->
+            <div class="carousel-inner">
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <img src="@Model[i].Photo_src" class="bd-placeholder-img" alt="@Model[i].Title" style="width: 100%; height: 400px;" />
+                        <div class="container">
+                            <div class="carousel-caption text-start">
+                                <div class="text-container">
+                                    <h1>@Model[i].Title</h1>
+                                    <p>@Model[i].Description</p>
+                                <p><a class="btn btn-lg btn-violet" href="/serieslist/details/@Model[i].Id">Go check</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Carousel Controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <br />
+        <br />
+        <br />
+
+        <h1 class="text-center opis">Ciekawostki Anime</h1>
+        <hr class="featurette-divider">
+
+            <div class="row featurette">
+                <div class="col-md-7">
+                <h2 class="featurette-heading text-light">Wzrost Popularności Anime na Świecie. </h2>
+                <p class="lead">Anime stało się globalnym zjawiskiem, zyskując coraz większą popularność poza granicami Japonii. Zjawisko to można przypisać łatwiejszemu dostępowi 
+                    do treści dzięki platformom streamingowym oraz rosnącej społeczności miłośników anime na całym świecie.</p>
+                </div>
+                <div class="col-md-5">
+                <img class=" featurette-image img-fluid mx-auto" src="/articles/1.png"  width="500" height="500" role="img"/>
+
+                </div>
+            </div>
+
+            <hr class="featurette-divider">
+        <br />
+        <br />
+            <div class="row featurette">
+                <div class="col-md-7 order-md-2">
+                <h2 class="featurette-heading text-light">Eksplodujący Rynek Produktów Związanych z Anime </h2>
+                <p class="lead">Popularność anime przyczyniła się do ogromnego wzrostu rynku produktów związanych z anime, takich jak zabawki, gry wideo, ubrania, gadżety i wiele więcej. Firmy na całym świecie wypuszczają 
+                    licencjonowane produkty z ulubionymi postaciami z anime, przyciągając fanów z różnych grup wiekowych..</p>
+                </div>
+                <div class="col-md-5 order-md-1">
+                <img class=" featurette-image img-fluid mx-auto" src="/articles/2.jpg" width="500" height="500" role="img" />
+
+                </div>
+            </div>
+
+            <hr class="featurette-divider">
+        <br />
+        <br />
+            <div class="row featurette">
+                <div class="col-md-7">
+                <h2 class="featurette-heading text-light">Wpływ Społeczności Anime na Kulturę Popularną </h2>
+                <p class="lead">Społeczność miłośników anime aktywnie uczestniczy w kulturze internetowej, tworząc memy, fanarty, AMV (Anime Music Videos) i inne treści. 
+                    Ta interakcja przyczynia się do szerzenia się wpływu anime na kulturę popularną.
+
+                </p>
+                </div>
+                <div class="col-md-5">
+                <img class=" featurette-image img-fluid mx-auto" src="/articles/3.jpg" width="500" height="500" role="img" />
+                </div>
+            </div>
+
+        <hr class="featurette-divider">
+        <br />
+        <br />
+        <div class="row featurette">
+            <div class="col-md-7 order-md-2">
+                <h2 class="featurette-heading text-light">Znaczący Wpływ na Sztukę i Design </h2>
+                <p class="lead">
+                    Styl artystyczny anime ma duże znaczenie w świecie sztuki i designu. Wpływ anime można zauważyć w dziedzinach takich jak moda, ilustracja, grafika komputerowa i reklama.
+                </p>
+            </div>
+            <div class="col-md-5 order-md-1">
+                <img class=" featurette-image img-fluid mx-auto" src="/articles/4.jpg" width="500" height="500" role="img" />
+            </div>
+        </div>
+        <hr class="featurette-divider">
+        <br />
+        <br />
+        <div class="row featurette">
+            <div class="col-md-7">
+                <h2 class="featurette-heading text-light">Anime jako Medium Edukacyjne i Kulturowe </h2>
+                <p class="lead">
+                    Anime często porusza ważne tematy społeczne, historyczne i kulturowe, dostarczając widzom wiedzy i perspektywy na różne aspekty życia. Seriale anime takie jak "Attack on Titan", 
+                    "Ghost in the Shell" i "Grave of the Fireflies" poruszają głębokie tematy i prowokują do refleksji.
+                </p>
+            </div>
+            <div class="col-md-5">
+                <img class=" featurette-image img-fluid mx-auto" src="/articles/5.png" width="500" height="500" role="img" />
+        </div>
+
+            <br />
+            <br />
+
+            <!-- /END THE FEATURETTES -->
+    </main>
+</div>

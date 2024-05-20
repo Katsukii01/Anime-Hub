@@ -1,0 +1,55 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment _environment
+@using System.Security.Claims
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var photoFileName = $"{userId}.png";
+    var photoPath = _environment.WebRootPath + "/pfp/" + photoFileName;
+    var photoSrc = System.IO.File.Exists(photoPath) ? $"~/pfp/{photoFileName}" : "~/pfp/default.png";
+}
+
+<h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+
+    <div class="col-md-6">
+        <form id="profile-form" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">Profile Picture</label>
+                <br />
+                <img id="img-preview" src="@Url.Content(photoSrc)" alt="Preview" style="width: 100px; height: 100px;  border-radius:50px;" />
+                <br /><br />
+                <input type="file" id="photoInput" name="photoInput" class="form-control" />
+                <br /><br />
+            </div>
+            <label class="form-label">Username</label>
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
+                <input asp-for="Username" class="form-control" placeholder="Please choose your username." />
+                <label asp-for="Username" class="form-label"></label>
+            </div>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById("photoInput").addEventListener("change", function (event) {
+            var input = event.target;
+            var reader = new FileReader();
+            reader.onload = function () {
+                var dataURL = reader.result;
+                var img = document.getElementById("img-preview");
+                img.src = dataURL;
+            };
+            reader.readAsDataURL(input.files[0]);
+        });
+    </script>
+}
